@@ -1,104 +1,101 @@
-// const botkitStoragePostgres = require('botkit-storage-postgres');
 const Botkit = require('botkit');
-const { getState, setState, isInQueue, getUserIndex, makeNiceList } = require('./slackchefbot_storage.js');
+const util = require('util')
+const { setAdminID, getAdminID, setAdminName, getAdminName, setLunch, getLunch,
+        setPrice, getPrice,
+        //setGroup, getGroup,
+        setConfirmed, getConfirmed,
+        //setDeclined, getDeclined,
+        getMenu } = require('./slackchefbot_storage');
+
 // TODO: add module for NLP - wit.au
 
-
-// TODO: rewrite into storage module
-var admin = '';
-var lunch = '';
-var price = 0;
-var menu = `Today's menu is ${lunch} at $${price}.`;
-
-// bot to send order reminder to remaining group
-var group = [];
-var confirmed = [];
+// NOTE: during development storage time out occurs after two minutes
+// TODO: integrate database
+// TODO: test live in-memory storage
 
 
 const token = process.env.SLACKBOT_TOKEN;
 
 const controller = Botkit.slackbot({
-  storage: my_storage_provider
-  // storage: botkitStoragePostgres({
-  //   host: 'localhost',
-  //   user: 'botkit',
-  //   password: 'botkit',
-  //   database: 'botkit'
-  // }),
-  // reconnects to Slack RTM after failed connection
-  retry: Infinity,
-  debug: false,
-  // verbose logging
-  logLevel: 7
+    // reconnects to Slack RTM after failed connection
+    retry: Infinity,
+    debug: false
+    // verbose logging
+    // logLevel: 7
 });
 
-// connect the bot to a stream of messages
-controller.spawn({token: token}).startRTM(function(err) {
-  if (err) {
-    throw new Error(err);
-  }
+controller.spawn({ token: token }).startRTM(function (err) {
+    if (err) {
+        throw new Error(err);
+    }
 });
+
+controller.on('bot_channel_join', function (bot, message) {
+    bot.reply(message, 'Let\'s lunch people.')
+})
 
 // admin sets lunch and price
-controller.hears(['set lunch (.*) set price (.*)'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
-  // TODO: store values
-  lunch = message.match[1];
-  price = message.match[2];
-  // controller.storage.users.save({id: message.user, foo:'bar'}, function(err) { ... });
+controller.hears(['set lunch (.*) set price (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    setLunch(message.match[1]);
+    setPrice(message.match[2]);
+    // console.log('LUNCH: ' + getLunch())
+    // console.log('PRICE: ' + price)
+    // console.log(message.user)
+    // bot.reply(message, menu + getLunch());
+    bot.reply(message, `Today's menu is ${getLunch()} at $${getPrice()}.`);
+    // TODO: add 'Please confirm? Y/N'
 
-  // bot.reply(message, 'LUNCH: ' + lunch + menu)
-  // bot.reply(message, 'PRICE: ' + price + menu)
-  bot.reply(message, menu)
-
-  // TODO: store admin
-  // get user id and store admin in storage
-  bot.api.users.info({user: message.user}, (error, response) => {
-    admin = response.user.id;
-    console.log('ADMIN: ' + admin)
-
-
-  });
-
-  // validate if they enter lunch and price at the same time
-
-  // get group details - all user_ids in channel, store in group - cannot be immutable.
-
+    bot.api.users.info({user: message.user}, (error, response) => {
+        setAdminID(response.user.id);
+        setAdminName(response.user.name);
+        // console.log(getAdminID() + getAdminName());
+        bot.reply(message, getAdminName() + ' is today\'s lunch administrator.');
+    })
 });
 
-controller.hears(['hello'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
-
-  bot.reply(message,'Hi.');
+controller.hears(['hello'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    // TEST
+    bot.reply(message,  getLunch());
+    bot.reply(message, 'Hi.');
+    bot.reply(message, `${getAdminName()} is the administrator for today's lunch`);
 
 });
 
 // on today's menu
-controller.hears(['lunch', 'menu'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
-
-  bot.reply(message, menu);
-  console.log('MESSAGE USER ' + message.user);
-  console.log('MESSAGE TEXT ' + message.text);
-  console.log('MESSAGE TS ' + message.ts);
+controller.hears(['lunch', 'menu'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    // TODO: check if user has confirmed. If yes, only send menu
+    bot.reply(message, `Today's menu is ${getLunch()} at $${getPrice()}. Are you in?`);
 
 });
 
 // user confirms
-controller.hears([/[i\'m] in/, 'yes', 'confirm'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+controller.hears([/[i\'m] in/, 'yes', 'confirm'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
 
-  bot.reply(message,'Mexican burritos on the way ;)');
+    bot.reply(message, `${getLunch()} is on the way ;)`);
 
-  // TODO add user to confirmed
-  // gets user id
-  bot.api.users.info({user: message.user}, (error, response) => {
-    user = response.user.id;
-
-  });
+    bot.api.users.info({ user: message.user }, (error, response) => {
+        // user = response.user.id;
+        setConfirmed(response.user.name);
+        // TODO: list to display name and real name
+        bot.reply(message, 'CONFIRMED\n' + getConfirmed().join('\n'));
+        //console.log('RESPONSE' + response);
+        console.log(util.inspect(response, false, null));
+    });
 
 });
 
 // user declines
-controller.hears([/[i\'m] out/, 'no'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+controller.hears([/[i\'m] out/, 'no'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
 
-  bot.reply(message,'Perhaps you can join us tomorrow.');
-  // TODO remove user from group
+    // TODO remove user from group
+
+    bot.reply(message, 'Perhaps you can join us tomorrow.');
+
+});
+
+// user checks for adminimistrator
+controller.hears(['admin'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+
+    bot.reply(message, `${getAdminName()} is the administrator for today's lunch.`);
 
 });
