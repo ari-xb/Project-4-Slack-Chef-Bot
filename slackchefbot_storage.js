@@ -29,7 +29,7 @@ const Storage = () => {
     const printMenu = (options) => {
       var menu = {
         "attachments" : [ {
-            "fallback": processFallback(options),
+            "fallback": processFallback(options) + " ",
             "fields" : processOptions(options)
           }
         ]
