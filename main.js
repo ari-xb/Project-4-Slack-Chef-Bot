@@ -176,7 +176,7 @@ controller.hears(['send menu'], ['direct_message', 'direct_mention', 'mention'],
       menu["text"] = `*Lunch for Today*\n
       Type:\n
       \`i'm in\` to join us\n
-      \`i'm in\` to decline or change your mind.`;
+      \`i'm out\` to decline or change your mind.`;
 
       // send menu to the channel
       bot.say(
