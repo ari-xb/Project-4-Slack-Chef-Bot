@@ -289,11 +289,6 @@ controller.hears(['list in'], ['direct_message', 'direct_mention', 'mention'], f
 });
 
 
-// bot doesn't understand command
-controller.hears([''], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-  bot.reply(message, "Sorry, I don't understand what you're saying.");
-});
-
 // ADMIN ONLY
 
 // administrator clears session
@@ -301,4 +296,10 @@ controller.hears(['end session'], ['direct_message', 'direct_mention', 'mention'
   bot.reply(message, printMenu("organiser lunch price people total"));
   resetLunch();
 
+});
+
+
+// bot doesn't understand command
+controller.hears([''], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+  bot.reply(message, "Sorry, I don't understand what you're saying.");
 });
