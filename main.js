@@ -288,11 +288,11 @@ controller.hears(['list in'], ['direct_message', 'direct_mention', 'mention'], f
 
 });
 
+
 // bot doesn't understand command
 controller.hears([''], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
   bot.reply(message, "Sorry, I don't understand what you're saying.");
 });
-
 
 // ADMIN ONLY
 
