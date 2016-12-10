@@ -191,11 +191,11 @@ controller.hears(['send menu'], ['direct_message', 'direct_mention', 'mention'],
 
 // ALL USERS
 
-controller.hears(['hello'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['hello', 'hi'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     // TODO: bot says helo and prints commands.
     // if there is an administrator, send details
     bot.reply(message,
-      `Hi there. <@slackchefbot_duyen> is a lunch service.
+      `Hi there. <@slacklunchbot> is a lunch service.
       You can opt in or opt out of group lunches.
       Type \`help\` any time to see what's possible.`
     );
