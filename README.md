@@ -1,8 +1,8 @@
 # Slack Lunch Bot
 
-@slacklunchbot is a lunch service built to take your group lunch order on Slack. 
+@slacklunchbot takes your group lunch order on Slack. 
 
-The administrator can set the menu, price, send the menu card and list all members in.
+The administrator can set the menu item and price, send a menu card out to the channel and list all members in.
 
 ## Technologies used
 - JavaScript
