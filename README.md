@@ -26,13 +26,7 @@ Create an app, site or tool, that could assist the organizers or attendees or bo
 | Ability to view who is 'in' and who is 'out'. |
 | Send the list of participants to the channel |
 | Future updates: (NLP)Natural Language Processing with Wit.ai |
-| Included JavaScript files. |
-=======
-# Slack Lunch Bot
-
-@slacklunchbot takes your group lunch order on Slack.
-
-The administrator can set the menu item and price, send a menu card out to the channel and list all members in.
+| Included JavaScript & Docker files. |
 
 ## Technologies used
 - JavaScript
@@ -47,6 +41,3 @@ The administrator can set the menu item and price, send a menu card out to the c
 - Invite the bot to your Slack channel with `/invite @slacklunchbot`.
 - Type `set admin` to access administrator rights.
 - Type `help` to view all commands.
-
-## Future updates
-- NLP with Wit.ai
